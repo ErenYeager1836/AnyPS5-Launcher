@@ -40,5 +40,5 @@ As of Phase 0, all mocked features in the user interface display an amber **"Dem
 - [x] **Phase 2:** Real Launch & Live Console (SSE stdout/stderr streaming, `POST /api/launch`, `POST /api/stop`, real process status).
 - [x] **Phase 3:** Library Ingestion (real folder scan for `eboot.bin`, metadata store in JSON, local covers).
 - [x] **Phase 4:** Real ELF/PRX Scanner (ELF64 parser, AnyPS5 3,249+ symbol database from `progress.json`, real missing symbol calculation).
-- [ ] **Phase 5:** Input Configurator (`anyps5-input.ini` round-trip preservation, Gamepad API visualizer, deadzone/trigger validation).
+- [x] **Phase 5:** Input Configurator (`anyps5-input.ini` round-trip preservation, Gamepad API visualizer, deadzone/trigger validation).
 - [ ] **Phase 6:** Quality & Release (Pytest suite, CI GitHub Actions, comprehensive README, release artifacts).

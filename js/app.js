@@ -875,40 +875,140 @@
     }).catch(e => console.warn('Could not persist to library.json:', e));
   });
 
-  // Controller Visualizer Key Listener
-  window.addEventListener('keydown', (e) => {
-    if (viewInput.style.display !== 'none') {
-      const cross = document.getElementById('btnCross');
-      if (cross) {
-        cross.style.fill = '#2563eb';
-        setTimeout(() => cross.style.fill = '#1e293b', 180);
-      }
+  // --- Live HTML5 Gamepad API Integration ---
+  let activeGamepadIndex = null;
+  const inputDeviceSelect = document.getElementById('inputDeviceSelect');
+
+  window.addEventListener('gamepadconnected', (e) => {
+    activeGamepadIndex = e.gamepad.index;
+    appendLog(`[GAMEPAD] Connected: ${e.gamepad.id}`, 'anyps5');
+    if (inputDeviceSelect) {
+      inputDeviceSelect.innerHTML = `
+        <option value="connected" selected>${e.gamepad.id} (Direct Gamepad API)</option>
+        <option value="dualsense">Sony Interactive Entertainment DualSense (SDL2)</option>
+        <option value="xinput">Xbox Wireless Controller (XInput)</option>
+      `;
     }
   });
+
+  window.addEventListener('gamepaddisconnected', (e) => {
+    appendLog(`[GAMEPAD] Disconnected: ${e.gamepad.id}`, 'warn');
+    if (activeGamepadIndex === e.gamepad.index) {
+      activeGamepadIndex = null;
+    }
+  });
+
+  function pollGamepad() {
+    if (viewInput && viewInput.style.display !== 'none') {
+      const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+      const gp = (activeGamepadIndex !== null && gamepads[activeGamepadIndex]) ? gamepads[activeGamepadIndex] : gamepads[0];
+
+      if (gp) {
+        setButtonState('btnCross', gp.buttons[0]?.pressed, '#3b82f6');
+        setButtonState('btnCircle', gp.buttons[1]?.pressed, '#f43f5e');
+        setButtonState('btnSquare', gp.buttons[2]?.pressed, '#c084fc');
+        setButtonState('btnTriangle', gp.buttons[3]?.pressed, '#10b981');
+        setButtonState('dpadUp', gp.buttons[12]?.pressed, '#38bdf8');
+        setButtonState('dpadDown', gp.buttons[13]?.pressed, '#38bdf8');
+        setButtonState('dpadLeft', gp.buttons[14]?.pressed, '#38bdf8');
+        setButtonState('dpadRight', gp.buttons[15]?.pressed, '#38bdf8');
+        setButtonState('btnTouchpad', gp.buttons[8]?.pressed, '#60a5fa');
+        setButtonState('btnPsHome', gp.buttons[16]?.pressed, '#ffffff');
+
+        // Analog stick displacement
+        if (gp.axes.length >= 4) {
+          const stickL = document.getElementById('stickLeft');
+          if (stickL) {
+            stickL.setAttribute('cx', 215 + gp.axes[0] * 18);
+            stickL.setAttribute('cy', 225 + gp.axes[1] * 18);
+          }
+          const stickR = document.getElementById('stickRight');
+          if (stickR) {
+            stickR.setAttribute('cx', 385 + gp.axes[2] * 18);
+            stickR.setAttribute('cy', 225 + gp.axes[3] * 18);
+          }
+        }
+      }
+    }
+    requestAnimationFrame(pollGamepad);
+  }
+
+  function setButtonState(elementId, isPressed, activeColor) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    if (isPressed) {
+      el.style.fill = activeColor;
+      el.style.stroke = '#ffffff';
+    } else {
+      el.style.fill = '';
+      el.style.stroke = '';
+    }
+  }
+
+  requestAnimationFrame(pollGamepad);
+
+  // Keyboard fallback listener for visualizer testing without physical gamepad
+  window.addEventListener('keydown', (e) => {
+    if (viewInput && viewInput.style.display !== 'none') {
+      if (e.code === 'Space') setButtonState('btnCross', true, '#3b82f6');
+      if (e.code === 'Escape') setButtonState('btnCircle', true, '#f43f5e');
+      if (e.code === 'KeyR') setButtonState('btnSquare', true, '#c084fc');
+      if (e.code === 'KeyF') setButtonState('btnTriangle', true, '#10b981');
+    }
+  });
+
+  window.addEventListener('keyup', (e) => {
+    if (viewInput && viewInput.style.display !== 'none') {
+      if (e.code === 'Space') setButtonState('btnCross', false, '');
+      if (e.code === 'Escape') setButtonState('btnCircle', false, '');
+      if (e.code === 'KeyR') setButtonState('btnSquare', false, '');
+      if (e.code === 'KeyF') setButtonState('btnTriangle', false, '');
+    }
+  });
+
+  // Load anyps5-input.ini on startup
+  async function loadInputIniSettings() {
+    try {
+      const res = await fetch('/api/input');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.deadzone_left !== undefined) {
+          const slider = document.getElementById('deadzoneSlider');
+          if (slider) {
+            slider.value = data.deadzone_left;
+            document.getElementById('deadzoneValue').textContent = `${data.deadzone_left}%`;
+          }
+        }
+      }
+    } catch (e) {}
+  }
 
   document.getElementById('deadzoneSlider').addEventListener('input', (e) => {
     document.getElementById('deadzoneValue').textContent = `${e.target.value}%`;
   });
 
-  // Controller Settings Persistence
+  // Save controller and input settings to real anyps5-input.ini
   document.getElementById('btnSaveInputIni').addEventListener('click', async () => {
     AudioEngine.click();
-    const deadzone = document.getElementById('deadzoneSlider').value;
-    const content = `# AnyPS5 Controller Configuration\n[Controller]\ndevice_type = dualsense\ndeadzone_left = ${deadzone}\ndeadzone_right = ${deadzone}\nadaptive_triggers = dynamic\nrumble = true\n\n[Bindings]\nCross = Key_Space\nCircle = Key_Escape\nSquare = Key_R\nTriangle = Key_F\nL1 = Key_Q\nR1 = Key_E\nL2 = Mouse_Right\nR2 = Mouse_Left\n`;
-
+    const deadzone = parseInt(document.getElementById('deadzoneSlider').value) || 6;
     try {
       const res = await fetch('/api/input', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content })
+        body: JSON.stringify({
+          deadzone_left: deadzone,
+          deadzone_right: deadzone
+        })
       });
-      if (res.ok) {
-        appendLog('[DISK] Real anyps5-input.ini written to disk.', 'anyps5');
-        alert('anyps5-input.ini generated and saved successfully to disk!');
+      const data = await res.json();
+      if (data.success) {
+        appendLog(`[DISK] Saved canonical anyps5-input.ini (deadzone=${deadzone}%) to disk.`, 'anyps5');
+        alert('anyps5-input.ini updated and saved successfully to disk!');
+      } else {
+        alert(`Error saving input config: ${data.errors ? data.errors.join(', ') : data.error}`);
       }
     } catch (e) {
-      appendLog('[INPUT] Saved controller profile locally.', 'anyps5');
-      alert('anyps5-input.ini saved!');
+      appendLog(`[ERROR] Failed to save anyps5-input.ini: ${e.message}`, 'warn');
     }
   });
 
@@ -935,6 +1035,7 @@
         }
         initSSE();
         loadLibrary();
+        loadInputIniSettings();
         if (data.process_running) {
           updateProcessUI(true, data.active_job ? data.active_job.title : 'Running Title', data.pid);
         }

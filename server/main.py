@@ -759,60 +759,47 @@ class LauncherHTTPHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_get_input(self) -> None:
         """Read anyps5-input.ini conforming to official format."""
+        from server.input_config import AnyPS5InputIni
         ini_path = BASE_DIR / "anyps5-input.ini"
-        if ini_path.exists():
-            content = ini_path.read_text(encoding="utf-8")
-        else:
-            content = (
-                "# AnyPS5 Controller, Keyboard and Mouse Input Configuration\n"
-                "# Format: Action = Type:Value\n\n"
-                "Cross = KEY:Space\n"
-                "Circle = KEY:Escape\n"
-                "Square = KEY:R\n"
-                "Triangle = KEY:F\n"
-                "L1 = KEY:Q\n"
-                "R1 = KEY:E\n"
-                "L2 = MOUSE:Right\n"
-                "R2 = MOUSE:Left\n"
-                "Options = KEY:Return\n"
-                "LeftStickUp = KEY:W\n"
-                "LeftStickLeft = KEY:A\n"
-                "LeftStickDown = KEY:S\n"
-                "LeftStickRight = KEY:D\n"
-                "ToggleFullscreen = KEY:F11\n"
-                "ToggleMouse = KEY:F1\n"
-            )
-            ini_path.write_text(content, encoding="utf-8")
-
-        self.send_json({"ini_path": str(ini_path), "content": content})
+        handler = AnyPS5InputIni(ini_path)
+        self.send_json({
+            "ini_path": str(ini_path),
+            "content": handler.to_string(),
+            "deadzone_left": handler.deadzone_left,
+            "deadzone_right": handler.deadzone_right,
+            "bindings": handler.bindings
+        })
 
     def handle_save_input(self, payload: Dict[str, Any]) -> None:
         """Save anyps5-input.ini preserving comments and unknown keys."""
-        content = payload.get("content", "")
+        from server.input_config import AnyPS5InputIni
         ini_path = BASE_DIR / "anyps5-input.ini"
-        
-        # Validate format: each non-empty, non-comment line must be Action = Type:Value
-        errors = []
-        lines = content.splitlines()
-        clean_lines = []
-        for idx, line in enumerate(lines, start=1):
-            stripped = line.strip()
-            if not stripped or stripped.startswith(("#", ";")):
-                clean_lines.append(line)
-                continue
-            if "=" in stripped:
-                parts = stripped.split("=", 1)
-                action = parts[0].strip()
-                val = parts[1].strip()
-                clean_lines.append(f"{action} = {val}")
-            else:
-                errors.append(f"Line {idx} invalid syntax (expected Action = Type:Value): {line}")
+        handler = AnyPS5InputIni(ini_path)
 
-        if errors:
-            self.send_json({"success": False, "errors": errors}, status=400)
-            return
+        if "content" in payload:
+            content = payload["content"]
+            lines = content.splitlines()
+            errors = []
+            for idx, line in enumerate(lines, start=1):
+                stripped = line.strip()
+                if not stripped or stripped.startswith(("#", ";")):
+                    continue
+                if "=" not in stripped:
+                    errors.append(f"Line {idx} invalid syntax (expected Action = Type:Value): {line}")
+            if errors:
+                self.send_json({"success": False, "errors": errors}, status=400)
+                return
+            ini_path.write_text(content.rstrip() + "\n", encoding="utf-8")
+        else:
+            if "bindings" in payload:
+                for act, val in payload["bindings"].items():
+                    handler.update_binding(act, val)
+            if "deadzone_left" in payload or "deadzone_right" in payload:
+                dl = int(payload.get("deadzone_left", handler.deadzone_left))
+                dr = int(payload.get("deadzone_right", handler.deadzone_right))
+                handler.set_deadzone(dl, dr)
+            handler.save()
 
-        ini_path.write_text("\n".join(clean_lines) + "\n", encoding="utf-8")
         append_log(f"Saved controller mappings to {ini_path.name}", "anyps5")
         self.send_json({"success": True, "saved_to": str(ini_path)})
 

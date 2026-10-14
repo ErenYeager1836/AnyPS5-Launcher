@@ -9,4 +9,5 @@ __pycache__/
 converted_games/
 AnyPS5/
 *.zip
+dist/
 current_avatar.png

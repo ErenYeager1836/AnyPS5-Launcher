@@ -9,23 +9,7 @@
 
 AnyPS5 Launcher is a modern, high-performance desktop hub and developer suite for **AnyPS5**, the PlayStation 5 to PC static relinker and compatibility layer.
 
-Unlike traditional utilitarian script wrappers or heavy Electron containers, AnyPS5 Launcher combines **industrial DevOps automation** (toolchain detection, 1-click AnyPS5 compiling, and binary executable conversion) with a **Steam / Big Picture-grade interactive visual experience** powered by standard Python 3 and zero pip dependencies.
-
----
-
-## 🏆 Feature Comparison
-
-| Capability | Tiberius1OOO Launcher | AnyPS5 Launcher (Our Repo) ⚡ |
-| :--- | :---: | :---: |
-| **Big Picture Game Library** | ❌ None | ✅ **Interactive Game Grid with status badges & metadata** |
-| **Toolchain & Prerequisites Audit** | ✅ Web form | ✅ **Real-time Host Diagnostic Hub (Git, CMake, Ninja, MSVC, Vulkan)** |
-| **1-Click AnyPS5 Source Builder** | ✅ Basic rebuild | ✅ **CMake + Ninja Compilation with live process streaming** |
-| **Game Relinker & Windows Converter** | ✅ Convert tab | ✅ **Convert Studio with flags + 1-Click "Add to Library & Play"** |
-| **Controller Visualizer & Config** | ⚠️ Text inputs | ✅ **Interactive SVG PS5 DualSense Visualizer + `anyps5-input.ini`** |
-| **Real 64-bit ELF Binary Diagnostics** | ❌ None | ✅ **Header Parser, AMD64 verification & SCE PRX coverage table** |
-| **Dependency Footprint** | ⚠️ Flask + pip requirements | ✅ **Zero Pip Dependencies (Standard Python 3 library only)** |
-| **One-Click Windows Start** | Batch / Exe | ✅ **Double-click `launch.bat` (Auto-starts & opens browser)** |
-| **Design & Acoustics** | Basic utilitarian UI | ✅ **OLED Glassmorphism, CSS Mesh Gradients & Web Audio acoustic UI** |
+It combines **automated toolchain management** (prerequisite detection, 1-click AnyPS5 compiling, and binary executable conversion) with a **Steam / Big Picture-grade interactive visual experience** powered by standard Python 3, a native Windows executable wrapper (`AnyPS5Launcher.exe`), and zero external dependencies.
 
 ---
 

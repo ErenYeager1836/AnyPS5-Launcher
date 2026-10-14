@@ -499,20 +499,66 @@ R2 = Mouse_Left
         except Exception as e:
             self.send_json({"error": str(e)}, status=500)
 
+def find_app_browser():
+    candidates = [
+        Path(os.environ.get("ProgramFiles(x86)", "C:/Program Files (x86)")) / "Microsoft/Edge/Application/msedge.exe",
+        Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Microsoft/Edge/Application/msedge.exe",
+        Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Google/Chrome/Application/chrome.exe",
+        Path(os.environ.get("ProgramFiles(x86)", "C:/Program Files (x86)")) / "Google/Chrome/Application/chrome.exe"
+    ]
+    for c in candidates:
+        if c.exists():
+            return str(c)
+    return None
+
 def run_server():
+    is_daemon = "--daemon" in sys.argv
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), LauncherRequestHandler) as httpd:
-        print(f"============================================================")
-        print(f"⚡ AnyPS5 Launcher Companion v2.0 running on http://localhost:{PORT}")
-        print(f"Features: Toolchain Hub, Build Engine, Convert Studio,")
-        print(f"Big Picture Game Library, DualSense Visualizer, ELF Auditor")
-        print(f"Press Ctrl+C to terminate.")
-        print(f"============================================================")
+    
+    server = socketserver.TCPServer(("", PORT), LauncherRequestHandler)
+    server_thread = threading.Thread(target=server.serve_forever, daemon=True)
+    server_thread.start()
+
+    print(f"============================================================")
+    print(f"⚡ AnyPS5 Launcher Application running on http://127.0.0.1:{PORT}")
+    print(f"============================================================")
+
+    if not is_daemon:
+        browser_exe = find_app_browser()
+        if browser_exe:
+            print("Launching native standalone application window...")
+            data_dir = BASE_DIR / ".app_data"
+            data_dir.mkdir(exist_ok=True)
+            cmd = [
+                browser_exe,
+                f"--app=http://127.0.0.1:{PORT}",
+                "--window-size=1380,880",
+                f"--user-data-dir={data_dir}"
+            ]
+            try:
+                proc = subprocess.Popen(cmd)
+                print("Application window active. Close the window to exit.")
+                proc.wait()
+            except Exception as e:
+                print(f"Failed to launch app window: {e}")
+        else:
+            import webbrowser
+            webbrowser.open(f"http://127.0.0.1:{PORT}")
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                pass
+    else:
         try:
-            httpd.serve_forever()
+            while True:
+                time.sleep(1)
         except KeyboardInterrupt:
-            print("\nShutting down launcher server...")
-            httpd.shutdown()
+            pass
+
+    print("\nShutting down launcher server...")
+    server.shutdown()
 
 if __name__ == "__main__":
     run_server()
+

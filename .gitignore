@@ -2,5 +2,9 @@
 .DS_Store
 Thumbs.db
 
-# Logs
+# Logs & App Cache
 *.log
+.app_data/
+__pycache__/
+converted_games/
+AnyPS5/

@@ -61,23 +61,27 @@ Unlike traditional utilitarian script wrappers or heavy Electron containers, Any
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Native Desktop App)
 
-### Option A: Double-Click on Windows
-Simply double-click **`launch.bat`**. It will verify Python 3, launch the background companion daemon, and open your web browser automatically at `http://localhost:8085`.
+You do **not** need to use a browser tab or see `http://localhost:8085`. AnyPS5 Launcher runs as a true standalone Windows desktop application window (no URL bar, no tabs, no navigation toolbar):
 
-### Option B: Command Line
+### Method 1: Double-Click `AnyPS5Launcher.exe` (Recommended)
+Simply double-click **`AnyPS5Launcher.exe`**.
+- Starts the background service silently (no command prompt window).
+- Opens the interface immediately in its own dedicated, hardware-accelerated desktop application window.
+- Automatically closes the background server when you exit the app.
+
+### Method 2: Double-Click `launch.bat`
+Double-clicking **`launch.bat`** automatically verifies Python and launches `AnyPS5Launcher.exe`.
+
+### Method 3: Command Line
 ```bash
 # Clone the repository
 git clone https://github.com/ErenYeager1836/AnyPS5-Launcher.git
 cd AnyPS5-Launcher
 
-# Start the companion server (Zero pip install required!)
+# Run with standalone app window (Zero pip install required!)
 python launcher.py
-```
-Then navigate to:
-```text
-http://localhost:8085
 ```
 
 ---
@@ -96,10 +100,13 @@ AnyPS5 Launcher includes a clean, legal homebrew fixture under `fixtures/demo_ga
 
 ```text
 AnyPS5-Launcher/
-├── launch.bat               # Windows 1-click startup launcher
-├── launcher.py              # Native Python companion backend (Tools, Build, Relink, INI, ELF)
+├── AnyPS5Launcher.exe       # Standalone Windows native desktop application executable
+├── launch.bat               # Windows batch starter
+├── launcher.py              # Python companion engine (IPC, build, relink, ELF parser)
 ├── mock_relinker.py         # Standalone test runner for relinker pipeline simulation
 ├── anyps5-input.ini         # Controller & keybinding configuration
+├── src/
+│   └── LauncherApp.cs       # Native C# source for AnyPS5Launcher.exe wrapper
 ├── fixtures/
 │   └── demo_game/           # Minimal test package (valid ELF64 eboot.bin + param.json)
 ├── css/

@@ -1,19 +1,17 @@
 @echo off
-title AnyPS5 Launcher Hub
+title AnyPS5 Launcher
+cd /d "%~dp0"
+
 echo ====================================================================
-echo        AnyPS5 Launcher - Next-Gen PlayStation 5 Companion Hub
+echo        AnyPS5 Launcher - Standalone Desktop Application
 echo ====================================================================
 echo.
-echo Checking Python environment...
-python --version >nul 2>&1
-if %ERRORLEVEL% neq 0 (
-    echo [ERROR] Python 3 is not found in PATH!
-    echo Please install Python from https://python.org and check "Add Python to PATH".
-    pause
-    exit /b 1
+
+if exist "AnyPS5Launcher.exe" (
+    echo Launching native desktop application window...
+    start "" "AnyPS5Launcher.exe"
+    exit /b 0
 )
 
-echo Launching companion daemon on http://localhost:8085...
-timeout /t 1 /nobreak >nul
-start "" "http://localhost:8085"
+echo Starting launcher with standalone application window...
 python launcher.py

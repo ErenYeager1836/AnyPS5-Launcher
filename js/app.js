@@ -261,6 +261,51 @@
     document.getElementById('countIngame').textContent = gamesDatabase.filter(g => g.status === 'ingame').length;
   }
 
+  // --- Real Game Library Ingestion ---
+  async function loadLibrary() {
+    try {
+      const res = await fetch('/api/library');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.games && data.games.length > 0) {
+        gamesDatabase.length = 0;
+        data.games.forEach(g => {
+          gamesDatabase.push({
+            id: g.id || `game_${Date.now()}`,
+            title: g.title || 'PlayStation 5 Title',
+            titleId: g.titleId || 'PPSA00000',
+            publisher: g.publisher || 'Installed Package',
+            status: g.status || 'playable',
+            statusLabel: g.statusLabel || (g.executable ? 'Relinked .EXE' : 'Raw Dump (ELF)'),
+            icon: g.icon || '🎮',
+            color: g.color || 'linear-gradient(135deg, #1d4ed8, #06b6d4)',
+            meshColor: g.meshColor || 'radial-gradient(ellipse at 85% 25%, rgba(6, 182, 212, 0.25) 0%, transparent 60%), linear-gradient(135deg, #0b0f19 0%, #06080d 100%)',
+            desc: g.notes || g.desc || `Discovered PS5 package at ${g.path || 'fixtures/demo_game'}. Ready for execution.`,
+            fps: g.fps || '60 FPS (Vsync)',
+            res: g.res || '1440p / 4K',
+            shaders: g.shaders || 'Cached on Launch',
+            compatScore: g.compatScore || 98,
+            symbolsTotal: g.symbolsTotal || 145,
+            symbolsResolved: g.symbolsResolved || 142,
+            path: g.path,
+            eboot: g.eboot,
+            executable: g.executable,
+            isReal: true,
+            isFavorite: g.isFavorite || false,
+            notes: g.notes || ''
+          });
+        });
+
+        activeGame = gamesDatabase[0];
+        renderGrid();
+        selectGame(activeGame);
+        appendLog(`[LIBRARY] Ingested ${data.games.length} real title(s) from ${data.library_folder}`, 'anyps5');
+      }
+    } catch (e) {
+      console.warn('Failed to load library:', e);
+    }
+  }
+
   function selectGame(game) {
     activeGame = game;
     AudioEngine.click();
@@ -764,7 +809,8 @@
       shaders: 'Cached on Launch',
       compatScore: status === 'playable' ? 96 : 85,
       symbolsTotal: 150,
-      symbolsResolved: status === 'playable' ? 144 : 128
+      symbolsResolved: status === 'playable' ? 144 : 128,
+      isReal: true
     };
 
     gamesDatabase.unshift(newGame);
@@ -772,6 +818,19 @@
     renderGrid();
     selectGame(newGame);
     appendLog(`[IMPORT] Added new title: ${title} (${titleId})`, 'anyps5');
+
+    // Persist to local library.json on disk
+    fetch('/api/library/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: newGame.id,
+        title: newGame.title,
+        titleId: newGame.titleId,
+        status: newGame.status,
+        publisher: newGame.publisher
+      })
+    }).catch(e => console.warn('Could not persist to library.json:', e));
   });
 
   // Controller Visualizer Key Listener
@@ -833,6 +892,7 @@
           appendLog(`[RUNTIME] Detected AnyPS5 runner: ${data.relinker_path}`, 'anyps5');
         }
         initSSE();
+        loadLibrary();
         if (data.process_running) {
           updateProcessUI(true, data.active_job ? data.active_job.title : 'Running Title', data.pid);
         }

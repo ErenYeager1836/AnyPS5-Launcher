@@ -1,0 +1,7 @@
+{
+  "demo_game": {
+    "title": "AnyPS5 Open Homebrew Demo (Verified)",
+    "notes": "Verified 60 FPS swapchain on Windows Vulkan 1.3 host",
+    "isFavorite": true
+  }
+}

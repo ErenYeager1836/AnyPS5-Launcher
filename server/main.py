@@ -181,6 +181,8 @@ class LauncherHTTPHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_save_config(payload)
         elif path == "/api/launch":
             self.handle_post_launch(payload)
+        elif path == "/api/library/update":
+            self.handle_post_library_update(payload)
         elif path == "/api/stop" or path == "/api/kill":
             self.handle_post_stop()
         elif path == "/api/convert":
@@ -432,6 +434,34 @@ class LauncherHTTPHandler(http.server.SimpleHTTPRequestHandler):
                 })
 
         self.send_json({"count": len(games), "library_folder": str(lib_root), "games": games})
+
+    def handle_post_library_update(self, payload: Dict[str, Any]) -> None:
+        """Persist metadata, notes, favorites, and custom covers to library.json."""
+        meta_file = BASE_DIR / "library.json"
+        saved: Dict[str, Any] = {}
+        if meta_file.exists():
+            try:
+                saved = json.loads(meta_file.read_text(encoding="utf-8"))
+            except Exception:
+                saved = {}
+
+        game_id = payload.get("id") or payload.get("titleId")
+        if not game_id:
+            self.send_json({"success": False, "error": "Game ID required."}, status=400)
+            return
+
+        entry = saved.get(game_id, {})
+        for key in ["title", "titleId", "publisher", "notes", "isFavorite", "customCover", "playTimeSeconds", "lastPlayed", "status", "path", "executable", "eboot"]:
+            if key in payload:
+                entry[key] = payload[key]
+        
+        saved[game_id] = entry
+        try:
+            meta_file.write_text(json.dumps(saved, indent=2), encoding="utf-8")
+            append_log(f"Updated metadata for {entry.get('title', game_id)} in library.json", "anyps5")
+            self.send_json({"success": True, "saved": entry})
+        except Exception as e:
+            self.send_json({"success": False, "error": str(e)}, status=500)
 
     def handle_post_launch(self, payload: Dict[str, Any]) -> None:
         """Launch an executable or AnyPS5 process with argument list (no shell=True)."""

@@ -1,73 +1,111 @@
 # AnyPS5 Launcher ⚡
 
-> **Lightweight Desktop Game Hub, Process Relinker Runner, ELF Diagnostics & Input Configurator for the [AnyPS5](https://github.com/boykopovar/AnyPS5) Compatibility Layer.**
+> **The Ultimate All-in-One Desktop Companion for [AnyPS5](https://github.com/boykopovar/AnyPS5): Automated Toolchain Setup, Source Compiler, Game Relinker Studio, Big Picture Library, DualSense Visualizer & ELF64 Diagnostics.**
 
 [![Platform: Windows & Linux](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-blue?style=flat-square)](https://github.com/boykopovar/AnyPS5)
-[![Backend: Python Standard Library](https://img.shields.io/badge/Backend-Python%203%20Native-yellow?style=flat-square)](launcher.py)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![Backend: Zero Dependencies](https://img.shields.io/badge/Backend-Python%20Standard%20Library-green?style=flat-square)](launcher.py)
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple?style=flat-square)](LICENSE)
+[![Design: Pure Vector & CSS](https://img.shields.io/badge/Aesthetics-OLED%20Glassmorphism-cyan?style=flat-square)](css/style.css)
 
-AnyPS5 Launcher is an open-source companion desktop application designed specifically for **AnyPS5**, the PlayStation 5 to PC static relinker and compatibility layer.
+AnyPS5 Launcher is a modern, high-performance desktop hub and developer suite for **AnyPS5**, the PlayStation 5 to PC static relinker and compatibility layer.
 
-Built with a **zero-dependency architecture** (Standard Python 3 + Modern Web UI), it acts as a local process runner and developer workbench without requiring bulky electron runtimes or node_modules.
+Unlike traditional utilitarian script wrappers or heavy Electron containers, AnyPS5 Launcher combines **industrial DevOps automation** (toolchain detection, 1-click AnyPS5 compiling, and binary executable conversion) with a **Steam / Big Picture-grade interactive visual experience** powered by standard Python 3 and zero pip dependencies.
 
 ---
 
-## ✨ Features
+## 🏆 Feature Comparison
 
-- 🎮 **Steam-Style Library**:
-  - Interactive grid view with game performance profiles, title IDs, and status indicators.
-  - One-click launch execution that spawns background processes and monitors exit codes.
-  - Local directory scanner (`/api/scan`) that auto-discovers game folders with `eboot.bin` / `param.json`.
-- 🔬 **Real ELF64 Binary Diagnostics**:
-  - Direct binary parser (`/api/elf-inspect`) that inspects ELF64 headers, machine architecture (`EM_X86_64`), entry points, and PRX dependencies on disk.
-- 🕹️ **Real `anyps5-input.ini` Configurator**:
-  - Interactive SVG visualizer for DualSense and gamepad buttons.
-  - Reads and writes real `anyps5-input.ini` configuration files directly to disk (`/api/input`).
-- 📊 **Live Relinker Log Terminal**:
-  - Slide-up drawer connected to a real-time stdout/stderr log stream (`/api/logs`) captured from active relinker processes.
-- ⚡ **Zero External Dependencies**:
-  - No `npm`, no `cargo`, no heavy frameworks. Runs immediately with standard Python 3.
+| Capability | Tiberius1OOO Launcher | AnyPS5 Launcher (Our Repo) ⚡ |
+| :--- | :---: | :---: |
+| **Big Picture Game Library** | ❌ None | ✅ **Interactive Game Grid with status badges & metadata** |
+| **Toolchain & Prerequisites Audit** | ✅ Web form | ✅ **Real-time Host Diagnostic Hub (Git, CMake, Ninja, MSVC, Vulkan)** |
+| **1-Click AnyPS5 Source Builder** | ✅ Basic rebuild | ✅ **CMake + Ninja Compilation with live process streaming** |
+| **Game Relinker & Windows Converter** | ✅ Convert tab | ✅ **Convert Studio with flags + 1-Click "Add to Library & Play"** |
+| **Controller Visualizer & Config** | ⚠️ Text inputs | ✅ **Interactive SVG PS5 DualSense Visualizer + `anyps5-input.ini`** |
+| **Real 64-bit ELF Binary Diagnostics** | ❌ None | ✅ **Header Parser, AMD64 verification & SCE PRX coverage table** |
+| **Dependency Footprint** | ⚠️ Flask + pip requirements | ✅ **Zero Pip Dependencies (Standard Python 3 library only)** |
+| **One-Click Windows Start** | Batch / Exe | ✅ **Double-click `launch.bat` (Auto-starts & opens browser)** |
+| **Design & Acoustics** | Basic utilitarian UI | ✅ **OLED Glassmorphism, CSS Mesh Gradients & Web Audio acoustic UI** |
+
+---
+
+## ✨ Core Highlights
+
+### 1. ⚙️ Toolchain Hub & Automated AnyPS5 Compiler
+- **Instant Host Audit**: Automatically detects Git, Python 3, CMake, Ninja, C++ Toolchains (MSVC, Clang, GCC), and Vulkan 1.3 Drivers with real-time status pills and system paths (`/api/tools`).
+- **1-Click Clone & Sync**: Clones `boykopovar/AnyPS5` or pulls upstream commits into `./AnyPS5` with a single click.
+- **CMake + Ninja Build Engine**: Configures and compiles `relinker.exe` with stdout streaming directly to the console terminal.
+
+### 2. 🔄 Relink & Convert Studio
+- **Direct Binary Translation**: Converts dumped PlayStation 5 game packages into standalone Windows PE32+ executables (`game.exe`).
+- **Full CLI Customization**: Toggle between standard console `--windows` and clean windowless `--windows-gui`, plus `--lazy-binding` and `--trace-imports`.
+- **Direct Library Integration**: Finished conversions can be added straight to the Game Library Grid with a single click to play immediately.
+
+### 3. 🎮 Big Picture Game Library
+- **Visual Game Cards**: Filterable by Playable vs. In-Game status, searchable by title, publisher, or TitleID (`PPSA...`).
+- **Hero Showcase**: Displays selected game parameters (target FPS, internal resolution, compiled shader cache count).
+- **Web Audio Feedback**: Tactile acoustic clicks and launch sounds reminiscent of modern console interfaces.
+
+### 4. 🕹️ Interactive DualSense & Input Visualizer
+- **Live SVG Gamepad**: Animated PlayStation 5 DualSense controller with real-time button response.
+- **Deadzone & Trigger Calibration**: Dynamic left/right stick deadzone sliders and haptic feedback toggles.
+- **Direct INI Persistence**: Reads and writes directly to `anyps5-input.ini` on disk (`/api/input`).
+
+### 5. 🔬 Real 64-bit ELF Binary Diagnostics
+- **Header Inspection**: Direct file parser (`/api/elf-inspect`) verifying ELF magic bytes, AMD64 machine code (`0x3E`), entry points, and 64-bit mode.
+- **SCE PRX Coverage Matrix**: Audits imported Sony PRX functions (`libkernel`, `libSceVideoOut`, `libScePad`, `libSceAudioOut`) with resolution status and fallback hooks.
+
+### 6. 📟 Real-Time Log Terminal Drawer
+- **Live Process Monitoring**: Streams stdout/stderr from active conversion jobs, builds, or game instances.
+- **Color-Coded Tags**: Distinguishes `[relinker]`, `[build]`, `[vulkan]`, `[audio]`, and `[warn]` messages.
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Launch the Desktop App
+### Option A: Double-Click on Windows
+Simply double-click **`launch.bat`**. It will verify Python 3, launch the background companion daemon, and open your web browser automatically at `http://localhost:8085`.
 
-Clone the repository and run the native companion server:
-
+### Option B: Command Line
 ```bash
+# Clone the repository
 git clone https://github.com/ErenYeager1836/AnyPS5-Launcher.git
 cd AnyPS5-Launcher
+
+# Start the companion server (Zero pip install required!)
 python launcher.py
 ```
-
-Then open your browser at:
+Then navigate to:
 ```text
 http://localhost:8085
 ```
 
-### 2. Testing Without Commercial Games (Included Demo)
+---
 
-The repository includes a dummy homebrew fixture under `fixtures/demo_game/` containing a valid 64-bit ELF binary and manifest:
-- Click **"Scan Local Folder"** in the UI to discover the demo title.
-- Click **"ELF Diagnostics"** to inspect the real binary header (x86-64 ELF64).
-- Click **"Relink & Launch"** to test live subprocess spawning and stdout log streaming in real time.
+## 🧪 Testing Without Commercial Games
+
+AnyPS5 Launcher includes a clean, legal homebrew fixture under `fixtures/demo_game/` containing a valid minimal 64-bit ELF binary (`eboot.bin`) and metadata (`param.json`):
+1. Open the **Relink & Convert** tab (pre-filled with `fixtures/demo_game`).
+2. Click **START CONVERSION & RELINKING**.
+3. Watch the relinker progress bar fill and inspect real-time logs in the bottom drawer.
+4. Click **Add to Library & Play Now** to test full lifecycle execution!
 
 ---
 
-## 📂 Project Architecture
+## 📂 Project Structure
 
 ```text
 AnyPS5-Launcher/
-├── launcher.py              # Native Python backend (IPC bridge, process runner, INI IO)
+├── launch.bat               # Windows 1-click startup launcher
+├── launcher.py              # Native Python companion backend (Tools, Build, Relink, INI, ELF)
 ├── mock_relinker.py         # Standalone test runner for relinker pipeline simulation
+├── anyps5-input.ini         # Controller & keybinding configuration
 ├── fixtures/
 │   └── demo_game/           # Minimal test package (valid ELF64 eboot.bin + param.json)
 ├── css/
-│   └── style.css            # Dark mode glassmorphic UI system
+│   └── style.css            # OLED glassmorphic UI system, toolchain cards, convert grid
 ├── js/
-│   └── app.js               # Frontend state, API client & Web Audio synthesizer
+│   └── app.js               # Frontend controller, toolchain auditor, audio synth, API client
 ├── index.html               # Main desktop interface
 └── README.md                # Documentation
 ```
@@ -76,7 +114,7 @@ AnyPS5-Launcher/
 
 ## ⚖️ Legal & Disclaimer
 
-AnyPS5 Launcher is an independent open-source frontend and diagnostic utility. It does not contain any copyrighted Sony PlayStation 5 game files, decryption keys, or proprietary firmware. Users must dump their own legitimate software from consoles they own.
+AnyPS5 Launcher is an independent open-source frontend and workflow automation utility. It does not contain any copyrighted Sony PlayStation 5 game files, decryption keys, or proprietary firmware. Users must dump their own legitimate software from consoles they own.
 
 ---
 

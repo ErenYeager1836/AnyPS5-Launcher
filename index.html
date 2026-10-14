@@ -25,6 +25,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         Library
       </button>
+      <button class="nav-tab-btn" data-tab="setup" id="tabSetup">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+        Toolchain & Setup
+      </button>
+      <button class="nav-tab-btn" data-tab="convert" id="tabConvert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Relink & Convert
+      </button>
       <button class="nav-tab-btn" data-tab="diagnostics" id="tabDiagnostics">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
         ELF Diagnostics
@@ -125,6 +133,175 @@
       <!-- Games Grid -->
       <div class="games-grid" id="gamesGrid">
         <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- View: Toolchain & Setup -->
+    <section id="viewSetup" style="display: none;">
+      <div class="diagnostics-panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Toolchain Hub & AnyPS5 Compiler</h2>
+            <p class="panel-subtitle">Automatically audit your host toolchain, clone AnyPS5, and build the relinker engine using CMake & Ninja.</p>
+          </div>
+          <div style="display: flex; gap: 0.75rem;">
+            <button class="btn-secondary" id="btnAuditTools">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              Re-Audit Tools
+            </button>
+            <button class="btn-icon" id="btnKillActiveTask" title="Stop Active Process / Build" style="color: var(--accent-rose); border-color: rgba(244, 63, 94, 0.4);">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Repository Card -->
+        <div class="repo-card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <span class="badge badge-relinker">Upstream Repository</span>
+              <h3 style="font-size: 1.35rem; margin-top: 0.5rem; font-family: 'Outfit', sans-serif;">AnyPS5 PlayStation 5 Compatibility Layer</h3>
+              <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.25rem;">boykopovar/AnyPS5 • Native Windows x86-64 binary relinker and Vulkan recompiler.</p>
+            </div>
+            <div id="repoStatusBadge" class="badge badge-playable">Checked</div>
+          </div>
+
+          <div class="repo-stats-row">
+            <div class="meta-item">
+              <span class="meta-label">Local Path</span>
+              <span class="meta-value" id="repoPathLabel" style="font-size: 0.82rem; font-family: 'JetBrains Mono', monospace;">./AnyPS5</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Commit / Branch</span>
+              <span class="meta-value" id="repoCommitLabel">Detecting...</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Relinker Binary Status</span>
+              <span class="meta-value" id="repoRelinkerStatus" style="color: var(--accent-emerald);">Ready</span>
+            </div>
+          </div>
+
+          <div class="repo-actions-row">
+            <button class="btn-primary-launch" id="btnCloneAnyps5" style="padding: 0.75rem 1.6rem; font-size: 0.95rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"></path></svg>
+              1-Click Clone / Sync AnyPS5
+            </button>
+            <button class="btn-secondary" id="btnBuildAnyps5" style="padding: 0.75rem 1.6rem; font-size: 0.95rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+              Compile Relinker (CMake + Ninja)
+            </button>
+          </div>
+        </div>
+
+        <h3 style="font-size: 1.15rem; margin-bottom: 1rem; font-family: 'Outfit', sans-serif;">Host Prerequisites & Diagnostics</h3>
+
+        <!-- Toolchain 6-Grid -->
+        <div class="toolchain-grid" id="toolchainGrid">
+          <!-- Dynamically filled by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- View: Relink & Convert -->
+    <section id="viewConvert" style="display: none;">
+      <div class="diagnostics-panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Game Relinker & Windows Executable Studio</h2>
+            <p class="panel-subtitle">Convert PS5 game packages and eboot.bin into standalone native Windows executables.</p>
+          </div>
+          <span class="badge badge-ps5">Direct Binary Translation</span>
+        </div>
+
+        <div class="convert-grid">
+          <!-- Left: Input Form -->
+          <div class="convert-flow-card">
+            <h3 style="font-size: 1.15rem; margin-bottom: 1.25rem; font-family: 'Outfit', sans-serif;">Conversion Parameters</h3>
+            
+            <div class="form-group">
+              <label class="form-label">Source Game Folder (Containing eboot.bin & param.json)</label>
+              <input type="text" class="form-input" id="convertGameFolder" value="fixtures/demo_game" placeholder="e.g. C:\Dumps\PS5\DemonSouls">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Output Directory</label>
+              <input type="text" class="form-input" id="convertOutputDir" value="converted_games" placeholder="e.g. converted_games">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Target Windows Executable Name</label>
+              <input type="text" class="form-input" id="convertExeName" value="AstroDemo.exe" placeholder="e.g. GameTitle.exe">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Target Mode</label>
+              <select class="form-select" id="convertTargetMode">
+                <option value="--windows" selected>--windows (Standard Windows Executable with Console Output)</option>
+                <option value="--windows-gui">--windows-gui (Clean Windowless GUI Subsystem)</option>
+              </select>
+            </div>
+
+            <div style="margin: 1.5rem 0;">
+              <label class="option-checkbox-row">
+                <input type="checkbox" id="convertLazyBinding" checked>
+                <span style="font-size: 0.9rem; font-weight: 500;">Enable Lazy SCE Binding (--lazy-binding) <span style="color: var(--text-dim); font-size: 0.8rem;">- Speeds up initial process startup</span></span>
+              </label>
+
+              <label class="option-checkbox-row">
+                <input type="checkbox" id="convertTraceImports">
+                <span style="font-size: 0.9rem; font-weight: 500;">Trace All PRX Calls (--trace-imports) <span style="color: var(--text-dim); font-size: 0.8rem;">- Useful for debugging stubbed NIDs</span></span>
+              </label>
+            </div>
+
+            <button class="btn-primary-launch" id="btnStartConvert" style="width: 100%; justify-content: center; padding: 0.9rem;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              START CONVERSION & RELINKING
+            </button>
+          </div>
+
+          <!-- Right: Status / Summary -->
+          <div class="convert-summary-card">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.15rem; font-family: 'Outfit', sans-serif;">Relinking Pipeline</h3>
+                <span id="convertStatusPill" class="badge badge-relinker">Ready</span>
+              </div>
+
+              <div class="meta-item" style="margin-bottom: 1rem;">
+                <span class="meta-label">Architecture Re-targeting</span>
+                <span class="meta-value">PS5 ELF64 (AMD64) ➔ Windows PE32+ (x86-64)</span>
+              </div>
+
+              <div class="meta-item" style="margin-bottom: 1rem;">
+                <span class="meta-label">Graphics Subsystem</span>
+                <span class="meta-value">PlayStation Agc / Gnm ➔ Native Vulkan 1.3 SPIR-V</span>
+              </div>
+
+              <div class="meta-item" style="margin-bottom: 1rem;">
+                <span class="meta-label">Audio & Input Hooks</span>
+                <span class="meta-value">libScePad ➔ SDL2 / DirectInput • libSceAudioOut ➔ 48kHz PCM</span>
+              </div>
+
+              <div class="convert-progress-track">
+                <div class="convert-progress-fill" id="convertProgressBar"></div>
+              </div>
+              <div id="convertStepText" style="font-size: 0.82rem; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">
+                Awaiting conversion trigger...
+              </div>
+            </div>
+
+            <div id="convertSuccessBox" style="margin-top: 1.5rem; display: none;">
+              <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem;">
+                <div style="color: var(--accent-emerald); font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem;">✓ Conversion Complete!</div>
+                <div id="convertOutputSummary" style="font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">Target executable ready for launch.</div>
+              </div>
+
+              <button class="btn-primary-launch" id="btnAddConvertedToLib" style="width: 100%; justify-content: center; padding: 0.8rem;">
+                🎮 Add to Library & Play Now
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 

@@ -818,6 +818,8 @@ class LauncherHTTPHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_post_scan(self, payload: Dict[str, Any]) -> None:
         """Analyze PS5 ELF64 headers and calculate real AnyPS5 symbol coverage."""
+        from server.elf_scanner import scan_elf_file
+
         elf_path_str = payload.get("path")
         if not elf_path_str:
             elf_path = BASE_DIR / "fixtures/demo_game/eboot.bin"
@@ -826,72 +828,9 @@ class LauncherHTTPHandler(http.server.SimpleHTTPRequestHandler):
             if not elf_path.is_absolute():
                 elf_path = BASE_DIR / elf_path
 
-        if not elf_path.exists():
-            self.send_json({"error": f"File does not exist: {elf_path}"}, status=404)
-            return
-
-        try:
-            raw = elf_path.read_bytes()
-            if len(raw) < 64 or raw[:4] != b"\x7fELF":
-                self.send_json({"valid": False, "reason": "Not an ELF executable file"}, status=400)
-                return
-
-            is_64bit = raw[4] == 2
-            is_little_endian = raw[5] == 1
-            e_machine = int.from_bytes(raw[18:20], "little" if is_little_endian else "big")
-            e_entry = int.from_bytes(raw[24:32], "little" if is_little_endian else "big") if is_64bit else 0
-            is_ps5 = e_machine == 0x3E and is_64bit
-
-            # Load official AnyPS5 symbols database
-            db_file = DATA_DIR / "anyps5_symbols.json"
-            known_done_symbols = set()
-            known_todo_symbols = set()
-            if db_file.exists():
-                try:
-                    db = json.loads(db_file.read_text(encoding="utf-8"))
-                    for grp in db.get("libraries", {}).get("groups", []):
-                        for s in grp.get("done_names", []):
-                            known_done_symbols.add(s)
-                        for s in grp.get("todo_names", []):
-                            known_todo_symbols.add(s)
-                except Exception:
-                    pass
-
-            # Extract ASCII strings matching sce* / PRX function naming conventions
-            pattern = re.compile(rb"sce[A-Z0-9][a-zA-Z0-9_]{3,60}")
-            extracted_raw = set(m.group(0).decode("ascii", errors="ignore") for m in pattern.finditer(raw))
-            
-            resolved_symbols = []
-            unresolved_symbols = []
-
-            for sym in sorted(extracted_raw):
-                if sym in known_done_symbols:
-                    resolved_symbols.append(sym)
-                elif sym in known_todo_symbols:
-                    unresolved_symbols.append(sym)
-
-            total_found = len(resolved_symbols) + len(unresolved_symbols)
-            if total_found > 0:
-                compat_score = round((len(resolved_symbols) / total_found) * 100, 1)
-            else:
-                compat_score = 98.0 if is_ps5 else 0.0
-
-            self.send_json({
-                "valid": True,
-                "file": elf_path.name,
-                "size_bytes": len(raw),
-                "is_64bit": is_64bit,
-                "architecture": "x86-64 (AMD64 / PS5)" if is_ps5 else f"Machine {hex(e_machine)}",
-                "entry_point": hex(e_entry),
-                "compatible_platform": is_ps5,
-                "symbols_total": total_found or 145,
-                "symbols_resolved": len(resolved_symbols) or 142,
-                "compat_score": compat_score,
-                "resolved_sample": resolved_symbols[:20],
-                "missing_symbols": unresolved_symbols[:20]
-            })
-        except Exception as e:
-            self.send_json({"error": str(e)}, status=500)
+        result = scan_elf_file(elf_path)
+        status = 200 if result.get("valid", False) else 400
+        self.send_json(result, status=status)
 
 def main():
     cfg = load_config(BASE_DIR)

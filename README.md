@@ -2,16 +2,18 @@
 
 > **Next-Generation Game Hub, ELF Diagnostics Scanner & Input Configurator for the [AnyPS5](https://github.com/boykopovar/AnyPS5) Compatibility Layer.**
 
-![AnyPS5 Launcher Hero Banner](assets/images/hero_astro.jpg)
+[![Platform: Windows & Linux](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-blue?style=flat-square)](https://github.com/boykopovar/AnyPS5)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![Status: Active](https://img.shields.io/badge/Status-Active-purple?style=flat-square)](https://github.com/ErenYeager1836/AnyPS5-Launcher)
 
-AnyPS5 Launcher is an open-source companion frontend designed specifically for **AnyPS5**, the PlayStation 5 to PC static relinker and compatibility runtime. It bridges the gap between raw command-line tools and a console-grade gaming experience.
+AnyPS5 Launcher is a lightweight, zero-dependency companion frontend designed specifically for **AnyPS5**, the PlayStation 5 to PC static relinker and compatibility runtime. It bridges the gap between raw command-line tools and a console-grade gaming experience.
 
 ---
 
 ## ✨ Features
 
 - 🎮 **Steam & Big Picture-Inspired Library**:
-  - Grid view featuring high-resolution box art, title badges, and target performance specs.
+  - Grid view featuring clean title cards, title badges, and target performance specs.
   - One-click **Relink & Launch** with animated launch pipeline status.
   - Search, filter by compatibility (`Playable`, `In-Game`), and sort.
 - 🔬 **Built-in ELF & PRX Diagnostics Scanner**:
@@ -51,8 +53,6 @@ http://localhost:8080
 
 ```text
 anyps5-launcher/
-├── assets/
-│   └── images/              # High-res box art and wide banners
 ├── css/
 │   └── style.css            # Dark mode glassmorphism design system
 ├── js/

@@ -1,4 +1,4 @@
-// AnyPS5 Launcher - Client Engine
+// AnyPS5 Launcher - Client Engine (Zero AI Images, Pure Vector & CSS)
 (function() {
   'use strict';
 
@@ -35,7 +35,7 @@
     }
   };
 
-  // --- Initial Games Database ---
+  // --- Games Database with Vector Styling ---
   const gamesDatabase = [
     {
       id: 'astro_odyssey',
@@ -44,8 +44,9 @@
       publisher: 'Cosmic Studios',
       status: 'playable',
       statusLabel: '100% Playable',
-      cover: 'assets/images/astro_odyssey.jpg',
-      banner: 'assets/images/hero_astro.jpg',
+      icon: '🪐',
+      color: 'linear-gradient(135deg, #1d4ed8, #06b6d4)',
+      meshColor: 'radial-gradient(ellipse at 85% 25%, rgba(6, 182, 212, 0.25) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(37, 99, 235, 0.2) 0%, transparent 60%), linear-gradient(135deg, #0b0f19 0%, #06080d 100%)',
       desc: 'Traverse alien star systems in an interplanetary sci-fi adventure. Optimized with native Vulkan 1.3 pipeline remapping and low-latency DualSense vibration.',
       fps: '60 FPS (Vsync)',
       res: '4K Ultra / 1440p',
@@ -61,8 +62,9 @@
       publisher: 'Developer Studio',
       status: 'playable',
       statusLabel: 'Playable',
-      cover: 'assets/images/shadow_ronin.jpg',
-      banner: 'assets/images/shadow_ronin.jpg',
+      icon: '⚔️',
+      color: 'linear-gradient(135deg, #dc2626, #7c3aed)',
+      meshColor: 'radial-gradient(ellipse at 85% 25%, rgba(220, 38, 38, 0.22) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(124, 58, 237, 0.2) 0%, transparent 60%), linear-gradient(135deg, #120d18 0%, #06080d 100%)',
       desc: 'Dark cyber-samurai action RPG set in the neon-drenched rooftops of neo Tokyo. Features real-time katana parrying and Agc shader pipeline emulation.',
       fps: '60 FPS Locked',
       res: '1440p Dynamic',
@@ -78,8 +80,9 @@
       publisher: 'Turbo Racing Games',
       status: 'playable',
       statusLabel: 'Playable',
-      cover: 'assets/images/neon_velocity.jpg',
-      banner: 'assets/images/neon_velocity.jpg',
+      icon: '⚡',
+      color: 'linear-gradient(135deg, #f59e0b, #ec4899)',
+      meshColor: 'radial-gradient(ellipse at 85% 25%, rgba(245, 158, 11, 0.22) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(236, 72, 153, 0.18) 0%, transparent 60%), linear-gradient(135deg, #180f15 0%, #06080d 100%)',
       desc: 'High-speed anti-gravity supersonic hovercraft racing. Tests high refresh-rate swapchain buffer swapping and SDL2 low-latency gamepad input.',
       fps: '120 FPS High-Refresh',
       res: '4K Native',
@@ -95,8 +98,9 @@
       publisher: 'From Software Tribute',
       status: 'ingame',
       statusLabel: 'In-Game (WIP)',
-      cover: 'assets/images/eldritch_blood.jpg',
-      banner: 'assets/images/eldritch_blood.jpg',
+      icon: '🩸',
+      color: 'linear-gradient(135deg, #991b1b, #475569)',
+      meshColor: 'radial-gradient(ellipse at 85% 25%, rgba(153, 27, 27, 0.25) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(71, 85, 105, 0.18) 0%, transparent 60%), linear-gradient(135deg, #140d0e 0%, #06080d 100%)',
       desc: 'Victorian gothic horror souls adventure under the giant blood moon. Boots cleanly into gameplay; working on remaining libSceAudio3d acoustic stubs.',
       fps: '45-60 FPS',
       res: '1440p',
@@ -172,9 +176,14 @@
 
       card.innerHTML = `
         <div class="card-cover-wrapper">
-          <img src="${game.cover}" alt="${game.title}" class="card-cover-img" loading="lazy">
           <div class="card-floating-badge">
             <span class="badge ${badgeClass}">${game.statusLabel}</span>
+          </div>
+          <div class="card-emblem" style="background: ${game.color};">
+            ${game.icon}
+          </div>
+          <div style="font-family: 'Outfit', sans-serif; font-size: 0.88rem; font-weight: 700; color: #94a3b8; letter-spacing: 0.05em; z-index: 2; margin-top: 0.35rem;">
+            ${game.publisher}
           </div>
           <div class="card-overlay-actions">
             <button class="card-quick-launch-btn" data-action="launch" data-id="${game.id}">
@@ -219,7 +228,7 @@
     activeGame = game;
     AudioEngine.click();
 
-    heroBackdrop.style.backgroundImage = `url('${game.banner}')`;
+    heroBackdrop.style.background = game.meshColor;
     heroTitle.textContent = game.title;
     heroDesc.textContent = game.desc;
     heroTitleId.textContent = game.titleId;
@@ -374,8 +383,9 @@
       publisher: 'User Import',
       status: status,
       statusLabel: status === 'playable' ? 'Playable' : 'In-Game',
-      cover: 'assets/images/astro_odyssey.jpg',
-      banner: 'assets/images/hero_astro.jpg',
+      icon: '🎮',
+      color: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+      meshColor: 'radial-gradient(ellipse at 85% 25%, rgba(37, 99, 235, 0.25) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(124, 58, 237, 0.2) 0%, transparent 60%), linear-gradient(135deg, #0b0f19 0%, #06080d 100%)',
       desc: 'Custom imported PlayStation 5 package.',
       fps: '60 FPS',
       res: '1440p',
@@ -418,7 +428,7 @@
   // --- Initial Boot ---
   renderGrid();
   appendLog('[INIT] AnyPS5 Launcher Hub v1.0 initialized.', 'anyps5');
-  appendLog('[SYSTEM] Found AnyPS5 runtime at C:\Users\mbhni\AnyPS5\build\bin\anyps5.exe', 'anyps5');
+  appendLog('[SYSTEM] Found AnyPS5 runtime at C:\\Users\\mbhni\\AnyPS5\\build\\bin\\anyps5.exe', 'anyps5');
   appendLog('[VULKAN] Verified Vulkan 1.3 Loader & Physical Device Capabilities.', 'vulkan');
   appendLog('[LIBRARY] Loaded 4 registered PS5 games.', 'anyps5');
 

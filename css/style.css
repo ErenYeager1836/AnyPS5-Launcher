@@ -229,7 +229,7 @@ body {
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-lg);
   background: var(--bg-surface);
-  min-height: 440px;
+  min-height: 420px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -238,9 +238,22 @@ body {
 .hero-backdrop {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center 30%;
-  transition: opacity 0.5s ease-in-out;
+  background: 
+    radial-gradient(ellipse at 85% 25%, rgba(59, 130, 246, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 80%, rgba(168, 85, 247, 0.18) 0%, transparent 60%),
+    linear-gradient(135deg, #0b0f19 0%, #06080d 100%);
+  transition: all 0.5s ease-in-out;
+}
+
+.hero-backdrop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at 60% 40%, black 20%, transparent 80%);
 }
 
 .hero-gradient-overlay {
@@ -509,7 +522,7 @@ body {
 /* Games Grid */
 .games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.75rem;
 }
 
@@ -535,20 +548,42 @@ body {
 .card-cover-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
-  background: #111420;
+  background: linear-gradient(135deg, #111728 0%, #0a0e1a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.4s ease;
 }
 
-.card-cover-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+.card-cover-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-.game-card:hover .card-cover-img {
-  transform: scale(1.06);
+.card-emblem {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.85rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  transition: transform var(--transition-fast);
+  z-index: 2;
+}
+
+.game-card:hover .card-emblem {
+  transform: scale(1.15);
 }
 
 .card-floating-badge {
@@ -561,13 +596,14 @@ body {
 .card-overlay-actions {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(6, 8, 13, 0.95) 0%, rgba(6, 8, 13, 0.4) 50%, transparent 100%);
+  background: linear-gradient(to top, rgba(6, 8, 13, 0.95) 0%, rgba(6, 8, 13, 0.5) 60%, transparent 100%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   padding: 1.25rem;
   opacity: 0;
   transition: opacity var(--transition-fast);
+  z-index: 4;
 }
 
 .game-card:hover .card-overlay-actions {

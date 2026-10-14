@@ -425,11 +425,102 @@
     alert('AnyPS5 runtime settings updated successfully!');
   });
 
+  // --- Real Backend API Integration ---
+  let backendOnline = false;
+
+  async function checkBackend() {
+    try {
+      const res = await fetch('/api/status');
+      if (res.ok) {
+        const data = await res.json();
+        backendOnline = true;
+        const chip = document.getElementById('daemonStatusChip');
+        if (chip) {
+          chip.innerHTML = '<div class="status-dot"></div><span>Python Native Bridge Active</span>';
+        }
+        appendLog(`[BACKEND] Connected to ${data.backend}`, 'anyps5');
+        if (data.anyps5_binary) {
+          appendLog(`[RUNTIME] Detected runner: ${data.anyps5_binary}`, 'anyps5');
+        }
+      }
+    } catch (e) {
+      console.log('Running in static preview mode');
+    }
+  }
+
+  // Poll real process logs when launched
+  let logPollInterval = null;
+  function startLogPolling() {
+    if (logPollInterval) clearInterval(logPollInterval);
+    logPollInterval = setInterval(async () => {
+      if (!backendOnline) return;
+      try {
+        const res = await fetch('/api/logs');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.logs && data.logs.length > 0) {
+            const lastLog = data.logs[data.logs.length - 1];
+            // Display latest if new
+          }
+        }
+      } catch (e) {}
+    }, 800);
+  }
+
+  // Override launchGame to call real /api/launch
+  const originalLaunchGame = launchGame;
+  launchGame = async function(game) {
+    if (backendOnline) {
+      try {
+        await fetch('/api/launch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: game.title, titleId: game.titleId })
+        });
+        startLogPolling();
+      } catch (e) {}
+    }
+    originalLaunchGame(game);
+  };
+
+  // Override Save Input to call /api/input
+  document.getElementById('btnSaveInputIni').addEventListener('click', async () => {
+    if (backendOnline) {
+      try {
+        const content = `# AnyPS5 Controller Configuration\n[Controller]\ndevice_type = dualsense\ndeadzone_left = ${document.getElementById('deadzoneSlider').value}\nrumble = true\n`;
+        const res = await fetch('/api/input', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+        if (res.ok) {
+          appendLog('[DISK] Real anyps5-input.ini written to disk.', 'anyps5');
+        }
+      } catch (e) {}
+    }
+  });
+
+  // Real ELF Inspection
+  async function inspectRealElf() {
+    if (backendOnline) {
+      try {
+        const res = await fetch('/api/elf-inspect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        if (res.ok) {
+          const elf = await res.json();
+          appendLog(`[ELF64] Verified ${elf.file}: Arch=${elf.architecture}, Entry=${elf.entry_point}`, 'anyps5');
+        }
+      } catch (e) {}
+    }
+  }
+
   // --- Initial Boot ---
   renderGrid();
   appendLog('[INIT] AnyPS5 Launcher Hub v1.0 initialized.', 'anyps5');
-  appendLog('[SYSTEM] Found AnyPS5 runtime at C:\\Users\\mbhni\\AnyPS5\\build\\bin\\anyps5.exe', 'anyps5');
-  appendLog('[VULKAN] Verified Vulkan 1.3 Loader & Physical Device Capabilities.', 'vulkan');
-  appendLog('[LIBRARY] Loaded 4 registered PS5 games.', 'anyps5');
+  checkBackend();
+  inspectRealElf();
 
 })();

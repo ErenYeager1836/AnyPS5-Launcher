@@ -323,6 +323,13 @@ body {
   border: 1px solid rgba(168, 85, 247, 0.35);
 }
 
+.badge-demo {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
 .hero-title {
   font-family: 'Outfit', sans-serif;
   font-size: 3.4rem;

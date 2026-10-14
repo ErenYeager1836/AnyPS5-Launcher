@@ -205,8 +205,9 @@
 
       card.innerHTML = `
         <div class="card-cover-wrapper">
-          <div class="card-floating-badge">
+          <div class="card-floating-badge" style="display: flex; gap: 4px; flex-wrap: wrap;">
             <span class="badge ${badgeClass}">${game.statusLabel}</span>
+            ${game.isReal ? '' : '<span class="badge badge-demo">Demo Data</span>'}
           </div>
 
           <div class="card-mesh-art" style="background: ${game.color};">
@@ -268,6 +269,11 @@
     heroTitle.textContent = game.title;
     heroDesc.textContent = game.desc;
     heroTitleId.textContent = game.titleId;
+
+    const heroDemoBadge = document.getElementById('heroDemoBadge');
+    if (heroDemoBadge) {
+      heroDemoBadge.style.display = game.isReal ? 'none' : 'inline-flex';
+    }
 
     heroShowcase.scrollIntoView({ behavior: 'smooth', block: 'start' });
     appendLog(`[SELECTION] Active title switched to ${game.title} (${game.titleId})`, 'anyps5');

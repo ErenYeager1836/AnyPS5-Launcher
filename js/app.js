@@ -279,44 +279,110 @@
     appendLog(`[SELECTION] Active title switched to ${game.title} (${game.titleId})`, 'anyps5');
   }
 
-  // --- Launch Sequence ---
-  function launchGame(game) {
+  // --- Process State Management ---
+  let activeProcessRunning = false;
+  let activeProcessPid = null;
+
+  function updateProcessUI(running, title = '', pid = null) {
+    activeProcessRunning = running;
+    activeProcessPid = pid;
+    if (running) {
+      btnHeroLaunch.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"></rect></svg>
+        STOP PROCESS ${pid ? '(PID ' + pid + ')' : ''}
+      `;
+      btnHeroLaunch.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+      btnHeroLaunch.style.boxShadow = '0 0 25px rgba(239, 68, 68, 0.4)';
+    } else {
+      btnHeroLaunch.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        RELINK & LAUNCH
+      `;
+      btnHeroLaunch.style.background = '';
+      btnHeroLaunch.style.boxShadow = '';
+    }
+  }
+
+  async function stopActiveProcess() {
+    AudioEngine.click();
+    appendLog('[TERMINATE] Requesting graceful termination of active process...', 'warn');
+    try {
+      const res = await fetch('/api/stop', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        appendLog(`[TERMINATE] ${data.message}`, 'warn');
+        updateProcessUI(false);
+      } else {
+        appendLog(`[ERROR] Failed to stop process: ${data.error}`, 'warn');
+      }
+    } catch (e) {
+      appendLog(`[ERROR] Network error stopping process: ${e.message}`, 'warn');
+    }
+  }
+
+  // --- Real Launch Sequence (Driven by Subprocess Events) ---
+  async function launchGame(game) {
+    if (activeProcessRunning) {
+      stopActiveProcess();
+      return;
+    }
+
     AudioEngine.launch();
-    launchOverlayTitle.textContent = `Relinking ${game.title}...`;
-    launchOverlayStep.textContent = 'Parsing PS5 ELF container & relocations...';
+    launchOverlayTitle.textContent = `Starting ${game.title}...`;
+    launchOverlayStep.textContent = 'Contacting companion daemon at 127.0.0.1:8085...';
     launchOverlay.classList.add('active');
 
-    appendLog(`--------------------------------------------------`, 'anyps5');
-    appendLog(`[LAUNCH] Initializing execution pipeline for ${game.title} (${game.titleId})`, 'anyps5');
-    appendLog(`[RELINKER] Loading eboot.bin -> Virtual Memory Base 0x100000000`, 'anyps5');
+    // Determine target executable
+    let targetExe = game.executable;
+    if (!targetExe) {
+      if (game.eboot) {
+        const folder = game.path || 'fixtures/demo_game';
+        targetExe = `${folder}/game.exe`;
+      } else {
+        targetExe = 'fixtures/demo_game/game.exe';
+      }
+    }
 
-    setTimeout(() => {
-      launchOverlayStep.textContent = 'Remapping SCE PRX system symbols...';
-      appendLog(`[PRX] Remapped ${game.symbolsResolved} of ${game.symbolsTotal} SCE functions.`, 'anyps5');
-    }, 700);
+    try {
+      const res = await fetch('/api/launch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: game.title,
+          titleId: game.titleId,
+          executable: targetExe
+        })
+      });
 
-    setTimeout(() => {
-      launchOverlayStep.textContent = 'Hooking Vulkan 1.3 presentation swapchain...';
-      appendLog(`[VULKAN] Initialized VkDevice with unified host heap`, 'vulkan');
-      appendLog(`[VULKAN] Compiling SPIR-V pipeline state objects...`, 'vulkan');
-    }, 1400);
-
-    setTimeout(() => {
-      launchOverlayStep.textContent = 'Connecting low-latency DualSense controller...';
-      appendLog(`[AUDIO] SDL2 48000Hz PCM stream opened successfully`, 'audio');
-      appendLog(`[PAD] DualSense controller connected (haptics dynamic)`, 'anyps5');
-    }, 2100);
-
-    setTimeout(() => {
-      launchOverlay.classList.remove('active');
-      appendLog(`[SUCCESS] Process spawned cleanly (PID: ${Math.floor(Math.random() * 8000 + 12000)}). Game running!`, 'anyps5');
-      logDrawer.classList.add('open');
-    }, 2800);
+      const data = await res.json();
+      if (data.success) {
+        updateProcessUI(true, game.title, data.pid);
+        launchOverlayStep.textContent = `Native process spawned (PID ${data.pid})`;
+        appendLog(`--------------------------------------------------`, 'anyps5');
+        appendLog(`[LAUNCH] Started ${game.title} (PID: ${data.pid})`, 'anyps5');
+        logDrawer.classList.add('open');
+        setTimeout(() => {
+          launchOverlay.classList.remove('active');
+        }, 500);
+      } else {
+        launchOverlayStep.textContent = `Error: ${data.error}`;
+        appendLog(`[ERROR] Failed to launch: ${data.error}`, 'warn');
+        setTimeout(() => {
+          launchOverlay.classList.remove('active');
+        }, 1800);
+      }
+    } catch (e) {
+      launchOverlayStep.textContent = `Daemon error: ${e.message}`;
+      appendLog(`[ERROR] Could not connect to launcher backend: ${e.message}`, 'warn');
+      setTimeout(() => {
+        launchOverlay.classList.remove('active');
+      }, 1800);
+    }
   }
 
   // --- Terminal Logging Utility ---
-  function appendLog(message, tag = 'anyps5') {
-    const time = new Date().toTimeString().split(' ')[0];
+  function appendLog(message, tag = 'anyps5', customTime = null) {
+    const time = customTime || new Date().toTimeString().split(' ')[0];
     const line = document.createElement('div');
     line.className = 'log-line';
 
@@ -328,7 +394,7 @@
     else if (tag === 'warn') { tagClass = 'log-tag-warn'; tagLabel = '[WARN]'; }
     else if (tag === 'relinker') { tagClass = 'log-tag-vulkan'; tagLabel = '[RELINKER]'; }
 
-    line.innerHTML = `<span class="log-timestamp">[${time}]</span> <span class="${tagClass}">${tagLabel}</span> ${message.replace(/\[\w+\]\s*/, '')}`;
+    line.innerHTML = `<span class="log-timestamp">[${time}]</span> <span class="${tagClass}">${tagLabel}</span> ${message.replace(/^\[\w+\]\s*/, '')}`;
     terminalOutput.appendChild(line);
     terminalOutput.scrollTop = terminalOutput.scrollHeight;
   }
@@ -453,34 +519,36 @@
     }
   }
 
-  // --- Real Backend Process Log Streaming ---
+  // --- Real Backend Process Log Streaming (Server-Sent Events) ---
   let backendOnline = false;
-  let logPollInterval = null;
-  let lastLogCount = 0;
+  let sseSource = null;
 
-  function startLogPolling() {
-    if (logPollInterval) clearInterval(logPollInterval);
-    logPollInterval = setInterval(async () => {
-      try {
-        const res = await fetch('/api/logs');
-        if (res.ok) {
-          const data = await res.json();
-          const logs = data.logs || [];
-          if (logs.length > lastLogCount) {
-            for (let i = lastLogCount; i < logs.length; i++) {
-              const l = logs[i];
-              appendLog(l.msg, l.tag || 'relinker');
-            }
-            lastLogCount = logs.length;
-          }
+  function initSSE() {
+    if (sseSource) {
+      try { sseSource.close(); } catch (e) {}
+    }
 
-          if (data.active_job) {
-            convertStatusPill.textContent = data.active_job;
-            convertStatusPill.className = 'badge badge-playable';
+    try {
+      sseSource = new EventSource('/api/logs/stream');
+
+      sseSource.onmessage = (event) => {
+        if (!event.data || event.data.trim() === ': ping') return;
+        try {
+          const item = JSON.parse(event.data);
+          appendLog(item.msg, item.tag || 'relinker', item.time);
+
+          if (item.msg && item.msg.includes('Process exited with code')) {
+            updateProcessUI(false);
           }
-        }
-      } catch (e) {}
-    }, 600);
+        } catch (err) {}
+      };
+
+      sseSource.onerror = () => {
+        // EventSource will automatically attempt reconnection
+      };
+    } catch (e) {
+      console.warn('SSE initialization failed:', e);
+    }
   }
 
   // Button Listeners for Setup View
@@ -497,7 +565,7 @@
       const res = await fetch('/api/tools/clone', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
-        startLogPolling();
+        initSSE();
       } else {
         appendLog(`[ERROR] ${data.error}`, 'warn');
       }
@@ -514,7 +582,7 @@
       const res = await fetch('/api/tools/build', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
-        startLogPolling();
+        initSSE();
       } else {
         appendLog(`[ERROR] ${data.error}`, 'warn');
       }
@@ -523,13 +591,8 @@
     }
   });
 
-  btnKillActiveTask.addEventListener('click', async () => {
-    AudioEngine.click();
-    try {
-      const res = await fetch('/api/kill', { method: 'POST' });
-      const data = await res.json();
-      appendLog(`[TERMINATE] ${data.message || data.error}`, 'warn');
-    } catch (e) {}
+  btnKillActiveTask.addEventListener('click', () => {
+    stopActiveProcess();
   });
 
   // --- Real Game Relinker & Conversion Studio ---
@@ -766,10 +829,13 @@
           chip.innerHTML = '<div class="status-dot"></div><span>Python Native Bridge Active</span>';
         }
         appendLog(`[BACKEND] Connected to ${data.backend}`, 'anyps5');
-        if (data.anyps5_binary) {
-          appendLog(`[RUNTIME] Detected runner: ${data.anyps5_binary}`, 'anyps5');
+        if (data.relinker_path) {
+          appendLog(`[RUNTIME] Detected AnyPS5 runner: ${data.relinker_path}`, 'anyps5');
         }
-        startLogPolling();
+        initSSE();
+        if (data.process_running) {
+          updateProcessUI(true, data.active_job ? data.active_job.title : 'Running Title', data.pid);
+        }
       }
     } catch (e) {
       console.log('Running in static preview mode');

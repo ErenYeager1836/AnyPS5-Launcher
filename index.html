@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AnyPS5 Launcher | Next-Gen PlayStation 5 Compatibility Hub</title>
+  <meta name="description" content="Sleek, modern desktop game launcher, ELF diagnostics scanner, and input manager for the AnyPS5 compatibility layer.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+
+  <!-- App Header / Top Navigation -->
+  <header class="app-header" id="appHeader">
+    <div class="brand-section">
+      <a href="#" class="brand-logo" id="brandLogo">
+        <div class="logo-badge">⚡</div>
+        <span>AnyPS5</span>
+      </a>
+      <span class="brand-subtitle">Launcher v1.0</span>
+    </div>
+
+    <nav class="nav-tabs" id="navTabs">
+      <button class="nav-tab-btn active" data-tab="library" id="tabLibrary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Library
+      </button>
+      <button class="nav-tab-btn" data-tab="diagnostics" id="tabDiagnostics">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+        ELF Diagnostics
+      </button>
+      <button class="nav-tab-btn" data-tab="input" id="tabInput">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="6"></rect><path d="M12 12h.01"></path><path d="M17 12h.01"></path><path d="M7 12h.01"></path></svg>
+        Controller & Input
+      </button>
+      <button class="nav-tab-btn" data-tab="settings" id="tabSettings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Runtime Settings
+      </button>
+    </nav>
+
+    <div class="header-actions">
+      <div class="system-status-chip" id="daemonStatusChip">
+        <div class="status-dot"></div>
+        <span>Vulkan 1.3 | Daemon Ready</span>
+      </div>
+      <button class="btn-icon" id="btnToggleTerminal" title="Toggle Relinker Log Terminal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+      </button>
+      <button class="btn-secondary" id="btnAddGame">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Add Game
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Viewports -->
+  <main class="app-container">
+
+    <!-- View: Library -->
+    <section id="viewLibrary">
+      <!-- Hero Banner Showcase -->
+      <div class="hero-showcase" id="heroShowcase">
+        <div class="hero-backdrop" id="heroBackdrop" style="background-image: url('assets/images/hero_astro.jpg');"></div>
+        <div class="hero-gradient-overlay"></div>
+        
+        <div class="hero-content">
+          <div class="hero-badges-row">
+            <span class="badge badge-ps5">PlayStation 5</span>
+            <span class="badge badge-playable">✓ 100% Playable</span>
+            <span class="badge badge-relinker">Direct Relink</span>
+          </div>
+
+          <h1 class="hero-title" id="heroTitle">Astro Odyssey</h1>
+          <p class="hero-desc" id="heroDesc">
+            Traverse alien star systems in an interplanetary sci-fi adventure. Optimized with native Vulkan 1.3 pipeline remapping and low-latency DualSense vibration.
+          </p>
+
+          <div class="hero-meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">Title ID</span>
+              <span class="meta-value" id="heroTitleId">PPSA01325</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Target FPS</span>
+              <span class="meta-value">60 FPS (Vsync)</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Resolution</span>
+              <span class="meta-value">4K Ultra / 1440p</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Shaders Cached</span>
+              <span class="meta-value">1,420 Compiled</span>
+            </div>
+          </div>
+
+          <div class="hero-actions-row">
+            <button class="btn-primary-launch" id="btnHeroLaunch">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              RELINK & LAUNCH
+            </button>
+            <button class="btn-secondary" id="btnHeroAudit">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              Quick Symbol Audit
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Library Search & Filters -->
+      <div class="library-toolbar">
+        <div class="search-box">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="searchInput" placeholder="Search games by title, TitleID (PPSA...), or publisher...">
+        </div>
+
+        <div class="filter-group" id="filterGroup">
+          <button class="filter-btn active" data-filter="all">All Games (<span id="countAll">4</span>)</button>
+          <button class="filter-btn" data-filter="playable">Playable (<span id="countPlayable">3</span>)</button>
+          <button class="filter-btn" data-filter="ingame">In-Game (<span id="countIngame">1</span>)</button>
+        </div>
+      </div>
+
+      <!-- Games Grid -->
+      <div class="games-grid" id="gamesGrid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- View: Diagnostics & Symbol Scanner -->
+    <section id="viewDiagnostics" style="display: none;">
+      <div class="diagnostics-panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">AnyPS5 Binary & ELF Diagnostics</h2>
+            <p class="panel-subtitle">Scan and audit any PlayStation 5 executable (`eboot.bin` / SELF) for unimplemented SCE PRX symbols.</p>
+          </div>
+          <button class="btn-secondary" id="btnScanSample">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Audit Active Game
+          </button>
+        </div>
+
+        <div class="scanner-dropzone" id="scannerDropzone">
+          <div class="dropzone-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          </div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.35rem;">Drop PS5 `eboot.bin` or SELF Executable here</h3>
+          <p style="color: var(--text-dim); font-size: 0.88rem;">Or click to select executable file from disk to inspect PRX import coverage</p>
+        </div>
+
+        <div class="compat-score-grid" id="compatReportBox">
+          <div class="score-circle-wrapper">
+            <div class="score-number" id="diagScorePercent">98%</div>
+            <div class="score-label">Compatibility Score</div>
+            <div class="badge badge-playable" style="margin-top: 0.8rem;" id="diagBadge">High Boot Probability</div>
+          </div>
+
+          <div class="symbols-breakdown">
+            <div class="progress-bar-container">
+              <div class="progress-header">
+                <span>Implemented SCE Functions</span>
+                <span id="diagResolvedRatio">142 / 145 Symbols</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" id="diagProgressBar" style="width: 98%;"></div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 0.5rem;">
+              <div class="meta-item">
+                <span class="meta-label">Target Platform</span>
+                <span class="meta-value">PS5 (x86-64 ELF64)</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Dependencies</span>
+                <span class="meta-value">12 PRX Modules</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Unresolved Stubs</span>
+                <span class="meta-value" style="color: var(--accent-amber);" id="diagMissingCount">3 Stubs</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="symbols-table-container">
+          <table class="symbols-table">
+            <thead>
+              <tr>
+                <th>Module (PRX)</th>
+                <th>Function / Symbol Name</th>
+                <th>NID</th>
+                <th>Status</th>
+                <th>Fallback Action</th>
+              </tr>
+            </thead>
+            <tbody id="symbolsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- View: Controller & Input -->
+    <section id="viewInput" style="display: none;">
+      <div class="controller-panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Controller & `anyps5-input.ini` Configurator</h2>
+            <p class="panel-subtitle">Live interactive gamepad visualizer with deadzone calibration and low-latency input translation.</p>
+          </div>
+          <button class="btn-primary-launch" style="padding: 0.65rem 1.4rem; font-size: 0.95rem;" id="btnSaveInputIni">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            Save anyps5-input.ini
+          </button>
+        </div>
+
+        <div class="controller-canvas-wrapper">
+          <svg id="controllerSvg" width="460" height="280" viewBox="0 0 600 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Controller Body -->
+            <path d="M140 70 C 200 65, 400 65, 460 70 C 530 80, 560 170, 545 280 C 535 340, 485 340, 440 280 C 400 230, 360 210, 300 210 C 240 210, 200 230, 160 280 C 115 340, 65 340, 55 280 C 40 170, 70 80, 140 70 Z" fill="#13192a" stroke="#2563eb" stroke-width="4"/>
+            <!-- Touchpad -->
+            <rect id="btnTouchpad" x="220" y="80" width="160" height="90" rx="8" fill="#1e2740" stroke="#3b82f6" stroke-width="2"/>
+            <text x="300" y="130" fill="#64748b" font-family="'Plus Jakarta Sans'" font-size="14" text-anchor="middle">Touchpad</text>
+            <!-- D-Pad -->
+            <circle cx="160" cy="150" r="48" fill="#1a2238"/>
+            <rect id="dpadUp" x="150" y="112" width="20" height="26" rx="4" fill="#334155"/>
+            <rect id="dpadDown" x="150" y="162" width="20" height="26" rx="4" fill="#334155"/>
+            <rect id="dpadLeft" x="122" y="140" width="26" height="20" rx="4" fill="#334155"/>
+            <rect id="dpadRight" x="172" y="140" width="26" height="20" rx="4" fill="#334155"/>
+            <!-- Action Face Buttons (Cross, Circle, Triangle, Square) -->
+            <circle cx="440" cy="150" r="48" fill="#1a2238"/>
+            <circle id="btnTriangle" cx="440" cy="120" r="14" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+            <text x="440" y="125" fill="#10b981" font-size="14" font-weight="bold" text-anchor="middle">▲</text>
+            <circle id="btnCircle" cx="470" cy="150" r="14" fill="#1e293b" stroke="#f43f5e" stroke-width="2"/>
+            <text x="470" y="155" fill="#f43f5e" font-size="14" font-weight="bold" text-anchor="middle">●</text>
+            <circle id="btnCross" cx="440" cy="180" r="14" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+            <text x="440" y="185" fill="#3b82f6" font-size="14" font-weight="bold" text-anchor="middle">✕</text>
+            <circle id="btnSquare" cx="410" cy="150" r="14" fill="#1e293b" stroke="#c084fc" stroke-width="2"/>
+            <text x="410" y="155" fill="#c084fc" font-size="14" font-weight="bold" text-anchor="middle">■</text>
+            <!-- Analog Sticks -->
+            <circle id="stickLeft" cx="215" cy="225" r="32" fill="#1e293b" stroke="#475569" stroke-width="3"/>
+            <circle id="stickRight" cx="385" cy="225" r="32" fill="#1e293b" stroke="#475569" stroke-width="3"/>
+            <!-- PlayStation Home Button -->
+            <circle id="btnPsHome" cx="300" cy="195" r="10" fill="#2563eb"/>
+          </svg>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+          <div class="form-group">
+            <label class="form-label">Connected Gamepad Device</label>
+            <select class="form-select" id="inputDeviceSelect">
+              <option value="dualsense">Sony Interactive Entertainment DualSense (DirectInput / SDL2)</option>
+              <option value="xinput">Xbox Wireless Controller (XInput)</option>
+              <option value="keyboard">Keyboard & Mouse Emulation Profile</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Left Stick Deadzone (<span id="deadzoneValue">6%</span>)</label>
+            <input type="range" min="0" max="25" value="6" id="deadzoneSlider" style="width: 100%; accent-color: var(--accent-blue);">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Adaptive Trigger Haptic Mode</label>
+            <select class="form-select">
+              <option>Full Resistance Feedback (Dynamic)</option>
+              <option>Vibration Only</option>
+              <option>Disabled</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- View: Settings -->
+    <section id="viewSettings" style="display: none;">
+      <div class="diagnostics-panel">
+        <h2 class="panel-title" style="margin-bottom: 1.5rem;">AnyPS5 Global Runtime Configuration</h2>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <div>
+            <div class="form-group">
+              <label class="form-label">AnyPS5 Relinker Binary Path (`anyps5.exe`)</label>
+              <input type="text" class="form-input" value="C:\Users\mbhni\AnyPS5\build\bin\anyps5.exe" id="settingBinaryPath">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Graphics Backend Driver</label>
+              <select class="form-select" id="settingGpuBackend">
+                <option value="vulkan">Vulkan 1.3 (Recommended - Native SPIR-V Recompiler)</option>
+                <option value="d3d12">Direct3D 12 (Experimental Agc translation)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Internal Resolution Scale</label>
+              <select class="form-select">
+                <option>Native PS5 (3840 x 2160 4K UHD)</option>
+                <option selected>2560 x 1440 (1440p High-Performance)</option>
+                <option>1920 x 1080 (1080p Standard)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <div class="form-group">
+              <label class="form-label">Audio System Driver</label>
+              <select class="form-select">
+                <option>SDL2 Audio Driver (Low-latency 48kHz)</option>
+                <option>WASAPI Exclusive</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Shader Recompilation Strategy</label>
+              <select class="form-select">
+                <option>Asynchronous Pipeline Pre-Compilation (Stutter-Free)</option>
+                <option>Synchronous On-Demand</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Logging Verbosity Level</label>
+              <select class="form-select" id="settingLogLevel">
+                <option>Information & Relinker Summary (Default)</option>
+                <option>Debug & Vulkan Validation Layers</option>
+                <option>Trace All PRX Calls</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary-launch" id="btnSaveSettings" style="margin-top: 1rem;">
+          Save Settings & Reload Daemon
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Console Drawer -->
+  <aside class="log-drawer" id="logDrawer">
+    <div class="drawer-handle-bar" id="drawerHandle">
+      <div class="drawer-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+        <span>ANYPS5 LIVE RELINKER LOG TERMINAL</span>
+      </div>
+      <span style="font-size: 0.76rem; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">Click to Toggle ▲</span>
+    </div>
+    <div class="drawer-content" id="terminalOutput">
+      <!-- Live logs appended here -->
+    </div>
+  </aside>
+
+  <!-- Add Game Modal -->
+  <div class="modal-overlay" id="addGameModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Add PlayStation 5 Game</h3>
+        <button class="btn-icon" id="btnCloseModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Game Title Name</label>
+          <input type="text" class="form-input" id="newGameTitle" placeholder="e.g. Demon's Souls Remake">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Title ID</label>
+          <input type="text" class="form-input" id="newGameTitleId" placeholder="e.g. PPSA01342">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Path to `eboot.bin`</label>
+          <input type="text" class="form-input" id="newGamePath" placeholder="C:\Games\PS5\Title\eboot.bin">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Initial Compatibility Assessment</label>
+          <select class="form-select" id="newGameStatus">
+            <option value="playable">Playable (Passes all checks)</option>
+            <option value="ingame">In-Game (Requires minor PRX stubs)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btnCancelAdd">Cancel</button>
+        <button class="btn-primary-launch" style="padding: 0.65rem 1.4rem;" id="btnConfirmAdd">Add to Library</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Launching Overlay Animation -->
+  <div class="launch-overlay" id="launchOverlay">
+    <div class="launch-spinner"></div>
+    <div class="launch-text" id="launchOverlayTitle">Launching Title...</div>
+    <div class="launch-step" id="launchOverlayStep">Relinking SCE PRX symbols...</div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

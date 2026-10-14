@@ -73,8 +73,8 @@ Double-clicking **`launch.bat`** automatically verifies Python and launches `Any
 git clone https://github.com/ErenYeager1836/AnyPS5-Launcher.git
 cd AnyPS5-Launcher
 
-# Run with standalone app window (Zero pip install required!)
-python launcher.py
+# Run with standard Python (Zero external dependencies or pip install required!)
+python server/main.py
 ```
 
 ---

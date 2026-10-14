@@ -1,0 +1,8 @@
+{
+  "anyps5_path": "C:/Users/mbhni/AnyPS5/build/bin/relinker.exe",
+  "anyps5_source_path": "C:/Users/mbhni/AnyPS5",
+  "library_folder": "fixtures",
+  "output_folder": "converted_games",
+  "host": "127.0.0.1",
+  "port": 8085
+}

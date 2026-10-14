@@ -13,6 +13,15 @@ It combines **automated toolchain management** (prerequisite detection, 1-click 
 
 ---
 
+## 📦 Download
+
+Get the standalone Windows release from the [**Releases**](https://github.com/ErenYeager1836/AnyPS5-Launcher/releases) page:
+1. Download [**`AnyPS5-Launcher-windows-v1.0.0.zip`**](https://github.com/ErenYeager1836/AnyPS5-Launcher/releases/latest/download/AnyPS5-Launcher-windows-v1.0.0.zip).
+2. Extract anywhere on your PC.
+3. Double-click **`AnyPS5Launcher.exe`** (or `launch.bat`).
+
+---
+
 ## ✨ Core Highlights
 
 ### 1. ⚙️ Toolchain Hub & Automated AnyPS5 Compiler

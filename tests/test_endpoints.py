@@ -7,6 +7,7 @@ diagnostics ELF scanning, live process execution lifecycle, and SSE logging.
 import unittest
 import json
 import socketserver
+import sys
 import threading
 import urllib.request
 import urllib.error
@@ -141,30 +142,46 @@ class TestServerEndpoints(unittest.TestCase):
         if not demo_exe.exists():
             self.skipTest("Demo executable fixture not present")
 
-        # Launch the demo executable
-        status, res = self._post_json("/api/launch", {
-            "title": "Test Demo Game",
-            "executable": str(demo_exe)
-        })
-        self.assertEqual(status, 200)
-        self.assertTrue(res.get("success"))
-        self.assertGreater(res.get("pid", 0), 0)
+        # On non-Windows platforms, Windows .exe cannot execute directly without Wine.
+        # Use a cross-platform executable runner to test the process launch/stop lifecycle.
+        runner = None
+        if sys.platform != "win32":
+            runner = BASE_DIR / "fixtures" / "demo_game" / "game_runner.py"
+            runner.write_text("#!/usr/bin/env python3\nimport time\ntime.sleep(30)\n", encoding="utf-8")
+            runner.chmod(0o755)
+            demo_exe = runner
 
-        # Verify status endpoint sees the running process
-        time.sleep(0.3)
-        _, _, data = self._get("/api/status")
-        status_res = json.loads(data.decode("utf-8"))
-        self.assertTrue(status_res.get("process_running"))
+        try:
+            # Launch the demo executable
+            status, res = self._post_json("/api/launch", {
+                "title": "Test Demo Game",
+                "executable": str(demo_exe)
+            })
+            self.assertEqual(status, 200)
+            self.assertTrue(res.get("success"))
+            self.assertGreater(res.get("pid", 0), 0)
 
-        # Terminate via /api/stop
-        stop_status, stop_res = self._post_json("/api/stop", {})
-        self.assertEqual(stop_status, 200)
-        self.assertTrue(stop_res.get("success"))
+            # Verify status endpoint sees the running process
+            time.sleep(0.3)
+            _, _, data = self._get("/api/status")
+            status_res = json.loads(data.decode("utf-8"))
+            self.assertTrue(status_res.get("process_running"))
 
-        time.sleep(0.3)
-        _, _, data2 = self._get("/api/status")
-        status_res2 = json.loads(data2.decode("utf-8"))
-        self.assertFalse(status_res2.get("process_running"))
+            # Terminate via /api/stop
+            stop_status, stop_res = self._post_json("/api/stop", {})
+            self.assertEqual(stop_status, 200)
+            self.assertTrue(stop_res.get("success"))
+
+            time.sleep(0.3)
+            _, _, data2 = self._get("/api/status")
+            status_res2 = json.loads(data2.decode("utf-8"))
+            self.assertFalse(status_res2.get("process_running"))
+        finally:
+            if runner and runner.exists():
+                try:
+                    runner.unlink()
+                except OSError:
+                    pass
 
 if __name__ == "__main__":
     unittest.main()

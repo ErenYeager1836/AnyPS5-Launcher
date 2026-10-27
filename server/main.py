@@ -502,6 +502,8 @@ class LauncherHTTPHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         cmd = [str(exe_path)] + [str(a) for a in args]
+        if sys.platform != "win32" and str(exe_path).lower().endswith(".exe") and shutil.which("wine"):
+            cmd = ["wine", str(exe_path)] + [str(a) for a in args]
         append_log(f"Spawning native process: {' '.join(cmd)}", "anyps5")
 
         try:

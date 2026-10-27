@@ -22,18 +22,43 @@ jobs:
       with:
         python-version: "3.11"
 
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
     - name: Run Test Suite
       run: |
         python -m unittest discover tests -v
+
+    - name: Compile Windows Native Launcher
+      shell: pwsh
+      run: |
+        # Use Roslyn csc compiler bundled with .NET Framework / SDK
+        $csc = Get-ChildItem -Path "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe" -ErrorAction SilentlyContinue
+        if ($csc) {
+            & $csc.FullName /target:winexe /out:AnyPS5Launcher.exe /r:System.Windows.Forms.dll,System.Drawing.dll src/LauncherApp.cs
+        } else {
+            Write-Host "Compiling with csc from PATH"
+            csc /target:winexe /out:AnyPS5Launcher.exe /r:System.Windows.Forms.dll,System.Drawing.dll src/LauncherApp.cs
+        }
 
     - name: Package Release ZIP
       run: |
         python scripts/package_release.py ${{ github.ref_name }}
 
+    - name: Generate Checksums
+      shell: pwsh
+      run: |
+        Get-FileHash dist/* -Algorithm SHA256 | Format-Table -AutoSize | Out-String | Set-Content dist/checksums.txt
+        Get-Content dist/checksums.txt
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        files: dist/AnyPS5-Launcher-windows-*.zip
+        files: |
+          dist/AnyPS5-Launcher-windows-*.zip
+          dist/checksums.txt
         name: AnyPS5 Launcher ${{ github.ref_name }}
         draft: false
         prerelease: false
